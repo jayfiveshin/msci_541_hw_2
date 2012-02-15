@@ -22,7 +22,7 @@ def tokenize(string)
     elsif term.empty?
       next
     else
-      terms << term.stem
+      terms << term
       term = ""
     end
   }
