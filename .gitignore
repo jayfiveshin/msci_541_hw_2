@@ -1,3 +1,4 @@
 .DS_STORE
 latimes.dat.gz
 results/*
+data/*
