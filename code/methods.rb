@@ -79,7 +79,38 @@ def calculate_df(dictionary, file_name)
   df
 end
 
-def read_per_doc(file_name)
+def get_length(file_name)
+  t1 = Time.now
+  doc_count = 0
+  doc = ""
+  middle_of_doc = false
+  Zlib::GzipReader.open(file_name) { |string|
+    string.each { |line|
+      line.downcase!
+      if line.match("</doc>")
+        doc << line
+        words = doc.split
+        print "\r\e[0K#{words.length}"
+        middle_of_doc = false
+        doc = ""
+        next
+      elsif middle_of_doc
+        doc << line
+        next
+      elsif line.match("<doc>")
+        doc_count += 1
+        # print "\r\e[0K#{doc_count} docs processed..."
+        doc << line
+        middle_of_doc = true
+        next
+      end
+    }
+  }
+  t2 = Time.now
+  print "\r\e[0KGetting doc_length #{t2 - t1} seconds"
+end
+
+def get_docno(file_name)
   t1 = Time.now
   docno = ""
   docno_array = []
@@ -95,7 +126,7 @@ def read_per_doc(file_name)
     }
   }
   t2 = Time.now
-  puts "\r\e[0K#{t2 - t1}"
+  puts "\r\e[0KGetting doc_no #{t2 - t1} seconds"
   docno_array
 end
 
