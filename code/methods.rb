@@ -79,6 +79,26 @@ def calculate_df(dictionary, file_name)
   df
 end
 
+def read_per_doc(file_name)
+  t1 = Time.now
+  docno = ""
+  docno_array = []
+  Zlib::GzipReader.open(file_name) { |string|
+    string.each { |line|
+      line.downcase!
+      if line.match "<docno>"
+        docno = tokenize(line)
+        docno = "#{docno[0]} #{docno[1]}"
+        print "\r\e[0K#{docno}"
+        docno_array << docno
+      end
+    }
+  }
+  t2 = Time.now
+  puts "\r\e[0K#{t2 - t1}"
+  docno_array
+end
+
 def calculate_tfidf(tf, df)
   tfidf = {}
   tf.each { |term, frequency|
