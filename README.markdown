@@ -1,2 +1,1 @@
-# MSCI 541: Information Retrieval Systems
-Homework 2
+# MSCI 541: Information Retrieval Systems Homework 2
