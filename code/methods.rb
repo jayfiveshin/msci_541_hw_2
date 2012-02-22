@@ -163,7 +163,7 @@ def get_docno(file_name)
   docno_array
 end
 
-def calculate_tfidf(tf, df)
+def build_tfidf(tf, df)
   tfidf = {}
   tf.each { |term, frequency|
     tfidf[term] = (tf[term].to_f / df[term].to_f).round(3)
