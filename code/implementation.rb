@@ -1,12 +1,27 @@
 load 'code/methods.rb'
 
-article = read_gzip("data/chosen_article.txt.gz")
-terms = tokenize(article)
-tf = calculate_tf(terms)
-display_table(tf)
-dictionary = build_dictionary(tf)
-get_docno("data/latimes_small.dat.gz")
-get_length("data/latimes_small.dat.gz")
-# df = calculate_df(dictionary, "data/latimes.dat.gz")
-# tfidf = calculate_tfidf(tf, df)
-# display_tfidf_table(tf, tfidf)
+chosen_article = "data/chosen_article.txt.gz"
+collection = "data/latimes_small.dat.gz"
+
+t1 = Time.now
+
+puts "Building TF Hash Table..."
+tf_hash = read_gzip(chosen_article).tokenize.build_tf
+
+puts "\nTF Table"
+tf_hash.display_table
+
+puts "\nBuilding dictionary..."
+dictionary = tf_hash.build_dictionary
+
+puts "\nBuilding DF Table, please be patient..."
+df_hash = build_df(dictionary, collection)
+
+puts "\nBuilding TFIDF Table..."
+tfidf_hash = build_tfidf(tf_hash, df_hash)
+
+puts "\nTFIDF Table"
+display_tfidf_table(tf_hash, tfidf_hash)
+
+t2 = Time.now
+puts "\nTotal processing time was #{t2 - t1} seconds."

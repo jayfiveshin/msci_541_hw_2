@@ -5,43 +5,76 @@ def read_gzip(file_name)
   Zlib::GzipReader.open(file_name).read
 end
 
-def tokenize(string)
-  term  = ""
-  terms = []
-  middle_of_tag = false
-  string.downcase.split("").each { |char| 
-    if char.match(">")
-      middle_of_tag = false
-    elsif middle_of_tag
-      next
-    elsif char.match("<")
-      middle_of_tag = true
-      next
-    elsif char.match(/[a-z0-9]/)
-      term += char
-    elsif term.empty?
-      next
-    else
-      terms << term.stem
-      term = ""
-    end
-  }
-  terms
+class String
+
+  def tokenize
+    # NOTE Try using switches instead
+    term  = ""
+    terms = []
+    middle_of_tag = false
+    self.downcase.split("").each { |char| 
+      if char.match(">")
+        middle_of_tag = false
+      elsif middle_of_tag
+        next
+      elsif char.match("<")
+        middle_of_tag = true
+        next
+      elsif char.match(/[a-z0-9]/)
+        term += char
+      elsif term.empty?
+        next
+      else
+        terms << term.stem
+        term = ""
+      end
+    }
+    terms
+  end
+
 end
 
-def calculate_tf(terms)
-  tf = {}
-  terms.each { |term|
-    if tf[term].nil?
-      tf[term] = 1
-    else
-      tf[term] += 1
-    end
-  }
-  tf
+class Array
+
+  def build_tf
+    tf = {}
+    self.each { |term|
+      if tf[term].nil?
+        tf[term] = 1
+      else
+        tf[term] += 1
+      end
+    }
+    tf
+  end
+
 end
 
-def calculate_df(dictionary, file_name)
+class Hash
+
+  def build_dictionary
+    self.keys
+  end
+
+  def display_table
+    rank = 1
+    puts "RANK\tTERM\t\tFREQUENCY"
+    sort_by_frequency(self).each { |term, frequency|
+      if rank > 20
+        break
+      end
+      if term.length > 7
+        puts "#{rank}\t#{term}\t#{frequency}"
+      else
+        puts "#{rank}\t#{term}\t\t#{frequency}"
+      end
+      rank += 1
+    }
+  end
+
+end
+
+def build_df(dictionary, file_name)
   df = {}
   doc = ""
   doc_count = 0
@@ -130,7 +163,7 @@ def get_docno(file_name)
   docno_array
 end
 
-def calculate_tfidf(tf, df)
+def build_tfidf(tf, df)
   tfidf = {}
   tf.each { |term, frequency|
     tfidf[term] = (tf[term].to_f / df[term].to_f).round(3)
@@ -138,28 +171,8 @@ def calculate_tfidf(tf, df)
   tfidf
 end
 
-def build_dictionary(tf_hash)
-  dictionary = tf_hash.keys
-end
-
 def sort_by_frequency(tf_hash)
   Hash[tf_hash.sort_by { |term, frequency| -1*frequency}]
-end
-
-def display_table(tf_hash)
-  rank = 1
-  puts "RANK\tTERM\t\tFREQUENCY"
-  sort_by_frequency(tf_hash).each { |term, frequency|
-    if rank > 20
-      break
-    end
-    if term.length > 7
-      puts "#{rank}\t#{term}\t#{frequency}"
-    else
-      puts "#{rank}\t#{term}\t\t#{frequency}"
-    end
-    rank += 1
-  }
 end
 
 def display_tfidf_table(tf, tfidf)
