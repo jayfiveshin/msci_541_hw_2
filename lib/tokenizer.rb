@@ -1,18 +1,13 @@
 require 'zlib'
 require 'stemmify'
 
-def read_gzip(file_name)
-  Zlib::GzipReader.open(file_name).read
-end
-
-class String
-
-  def tokenize
+class Tokenizer
+  def tokenize(string)
     # NOTE Try using switches instead
     term  = ""
     terms = []
     middle_of_tag = false
-    self.downcase.split("").each { |char| 
+    string.downcase.split("").each { |char| 
       if char.match(">")
         middle_of_tag = false
       elsif middle_of_tag
@@ -29,10 +24,20 @@ class String
         term = ""
       end
     }
+
     terms
   end
 
+  def invert
+    self.tokenize
+
+  end
 end
+
+def read_gzip(file_name)
+  Zlib::GzipReader.open(file_name).read
+end
+
 
 class Array
 
@@ -189,4 +194,8 @@ def display_tfidf_table(tf, tfidf)
     end
     rank += 1
   }
+end
+
+def write_to_file
+  File.open("testing.txt", "w") { |f| f.write("Hello world!") }
 end
