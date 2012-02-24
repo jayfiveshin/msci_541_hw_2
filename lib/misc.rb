@@ -1,4 +1,5 @@
 require 'zlib'
+require 'stemmify'
 
 def read_gzip(file_name)
   Zlib::GzipReader.open(file_name).read
@@ -162,5 +163,101 @@ def display_tfidf_table(tf, tfidf)
 end
 
 def write_to_file
-  File.open("testing.txt", "w") { |f| f.write("Hello world!") }
+  hash = {"la10189-0001" => {"joonha" => 1, "shin" => 1}, "la10189-0002" => {"jake" => 2, "nolan" => 1}}
+  open("testing.txt", "w") { |f|
+    hash.each { |k, v|
+      f.write "<DOC>\n"
+      f.write "<DOCNO>#{k}</DOCNO>\n"
+      f.write "<INDEX>\n"
+      v.each { |k, v|
+        f.write "#{k}=#{v}\n"
+      }
+      f.write "</INDEX>\n"
+      f.write "</DOC>\n"
+    }
+  }
+end
+
+def read_from_file
+  mid_of_doc = false
+  hash       = Hash.new
+  docno      = String.new
+  tokenizer  = Tokenizer.new
+  open("testing.txt").each do |line|
+    line.downcase!
+    if line.match("<doc>")
+      mid_of_doc = true
+    elsif mid_of_doc and line.match("<docno>")
+      docno = tokenizer.tokenize(line).join
+      hash[docno] = {}
+    elsif mid_of_doc and line.match("<index>")
+      next
+    elsif mid_of_doc and line.match("</doc>")
+      mid_of_doc = false
+    elsif mid_of_doc
+      terms = tokenizer.tokenize(line)
+      hash[docno][terms[0]] = terms[1]
+    end
+  end
+  puts hash
+end
+
+
+
+class Tokenizer
+  def initialize
+  end
+
+  def tokenize(str)
+    term  = ""
+    terms = []
+    mid_of_tag = false
+    str.downcase.split("").each { |char| 
+      if char === '>'
+        mid_of_tag = false
+      elsif mid_of_tag
+        next
+      elsif char === '<'
+        mid_of_tag = true
+      elsif char.match(/[a-z0-9]/)
+        term += char
+      elsif term.empty?
+        next
+      else
+        terms << term.stem
+        term.clear
+      end
+    }
+    if term.empty?
+      terms
+    else
+      terms << term.stem
+    end
+  end
+end
+
+class Inverter
+  def initialize
+    @tokenizer = Tokenizer.new
+    @hash = Hash.new
+  end
+
+  def invert(str)
+    @tokenizer.tokenize(str).each { |word|
+      @hash[word] = @hash[word].to_i + 1
+    }
+    @hash
+  end
+
+  def get_docno(str)
+    docno = String.new
+    str.downcase!
+    if str.match "<docno>"
+      docno = @tokenizer.tokenize(str)[0]
+      # docno = "#{docno[0]} #{docno[1]}"
+      # print "\r\e[0K#{docno}"
+      @hash[docno] = {}
+    end
+    @hash
+  end
 end

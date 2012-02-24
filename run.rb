@@ -1,15 +1,18 @@
-load 'code/methods.rb'
+load 'lib/inverter.rb'
+load 'lib/tokenizer.rb'
+load 'lib/misc.rb'
 
 write_to_file
-# chosen_article = "data/chosen_article.txt.gz"
-# collection = "data/latimes_small.dat.gz"
+read_from_file
+# chosen_article = "data/chosen_article.dat.gz"
+# collection = "data/latimes_810.dat.gz"
 
 # t1 = Time.now
 
 # puts "Building TF Hash Table..."
 # tf_hash = read_gzip(chosen_article).tokenize.build_tf
 
-# puts "\nTF Table"
+# puts "\nTF Table
 # tf_hash.display_table
 
 # puts "\nBuilding dictionary..."

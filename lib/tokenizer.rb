@@ -1,30 +1,34 @@
 require 'stemmify'
 
 class Tokenizer
-  def tokenize(string)
-    # NOTE Try using switches instead
+  def initialize
+  end
+
+  def tokenize(str)
     term  = ""
     terms = []
-    middle_of_tag = false
-    string.downcase.split("").each { |char| 
-      if char.match(">")
-        middle_of_tag = false
-      elsif middle_of_tag
+    mid_of_tag = false
+    str.downcase.split("").each { |char| 
+      if char === '>'
+        mid_of_tag = false
+      elsif mid_of_tag
         next
-      elsif char.match("<")
-        middle_of_tag = true
-        next
+      elsif char === '<'
+        mid_of_tag = true
       elsif char.match(/[a-z0-9]/)
         term += char
       elsif term.empty?
         next
       else
         terms << term.stem
-        term = ""
+        term.clear
       end
     }
-
-    terms
+    if term.empty?
+      terms
+    else
+      terms << term.stem
+    end
   end
 end
 
