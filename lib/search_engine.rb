@@ -10,7 +10,6 @@ class SearchEngine
   def build_df(dictionary, file_name)
     df = {}
     doc = ""
-    doc_count = 0
     middle_of_doc = false
     Zlib::GzipReader.open(file_name) { |string|
       string.each { |line|
@@ -33,8 +32,6 @@ class SearchEngine
           doc << line
           next
         elsif line.match("<doc>")
-          doc_count += 1
-          print "\r\e[0K#{doc_count} docs processed..."
           doc << line
           middle_of_doc = true
           next
