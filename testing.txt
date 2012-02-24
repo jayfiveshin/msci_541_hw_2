@@ -1,0 +1,14 @@
+<DOC>
+<DOCNO>la10189-0001</DOCNO>
+<INDEX>
+joonha=1
+shin=1
+</INDEX>
+</DOC>
+<DOC>
+<DOCNO>la10189-0002</DOCNO>
+<INDEX>
+jake=2
+nolan=1
+</INDEX>
+</DOC>
