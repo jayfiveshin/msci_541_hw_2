@@ -3,43 +3,35 @@ require 'stemmify'
 
 class SearchEngine
   # use to read gzipped files only
-  def read_data(file_name)
-    Zlib::GzipReader.open(file_name).read
+  def get_data(filename)
+    Zlib::GzipReader.open(filename)
   end
 
-  def build_df(dictionary, file_name)
-    df = {}
-    doc = ""
-    middle_of_doc = false
-    Zlib::GzipReader.open(file_name) { |string|
-      string.each { |line|
-        line.downcase!
-        if line.match("</doc>")
-          doc << line
-          dictionary.each { |term|
-            if doc.match(term)
-              if df[term].nil?
-                df[term] = 1
-              else
-                df[term] += 1
-              end
-            end
-          }
-          middle_of_doc = false
-          doc = ""
-          next
-        elsif middle_of_doc
-          doc << line
-          next
-        elsif line.match("<doc>")
-          doc << line
-          middle_of_doc = true
-          next
+  def read_data(filename)
+    Zlib::GzipReader.open(filename).read
+  end
+
+  def build_df(dictionary, filename)
+    df_table  = Hash.new # what this method returns
+    document  = String.new # used to store one document at a time
+    inside    = false
+    get_data(filename).each do |line|
+      line.downcase!
+      if inside and line.match("</doc>")
+        document << line
+        dictionary.each do |term|
+          document.match(term) { |m| df_table[m.to_s] = df_table[m.to_s].to_i + 1 }
         end
-      }
-    }
-    print "\n"
-    df
+        inside = false
+        document.clear
+      elsif inside and !line.match("</doc>")
+        document << line
+      elsif !inside and line.match("<doc>")
+        document << line
+        inside = true
+      end
+    end
+    return df_table
   end
 
   def get_length(file_name)
