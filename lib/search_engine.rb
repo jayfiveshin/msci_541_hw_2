@@ -1,12 +1,36 @@
 require 'zlib'
 require 'stemmify'
 
-def read_gzip(file_name)
-  Zlib::GzipReader.open(file_name).read
+class String
+  def tokenize
+    term  = ""
+    terms = []
+    mid_of_tag = false
+    self.downcase.split("").each { |char| 
+      if char === '>'
+        mid_of_tag = false
+      elsif mid_of_tag
+        next
+      elsif char === '<'
+        mid_of_tag = true
+      elsif char.match(/[a-z0-9]/)
+        term += char
+      elsif term.empty?
+        next
+      else
+        terms << term.stem
+        term.clear
+      end
+    }
+    if term.empty?
+      terms
+    else
+      terms << term.stem
+    end
+  end
 end
 
 class Array
-
   def build_tf
     tf = {}
     self.each { |term|
@@ -18,11 +42,9 @@ class Array
     }
     tf
   end
-
 end
 
 class Hash
-
   def build_dictionary
     self.keys
   end
@@ -42,7 +64,10 @@ class Hash
       rank += 1
     }
   end
+end
 
+def read_gzip(file_name)
+  Zlib::GzipReader.open(file_name).read
 end
 
 def build_df(dictionary, file_name)
@@ -202,62 +227,21 @@ def read_from_file
   puts hash
 end
 
-
-
-class Tokenizer
-  def initialize
-  end
-
-  def tokenize(str)
-    term  = ""
-    terms = []
-    mid_of_tag = false
-    str.downcase.split("").each { |char| 
-      if char === '>'
-        mid_of_tag = false
-      elsif mid_of_tag
-        next
-      elsif char === '<'
-        mid_of_tag = true
-      elsif char.match(/[a-z0-9]/)
-        term += char
-      elsif term.empty?
-        next
-      else
-        terms << term.stem
-        term.clear
-      end
-    }
-    if term.empty?
-      terms
-    else
-      terms << term.stem
-    end
-  end
+def invert(str)
+  @tokenizer.tokenize(str).each { |word|
+    @hash[word] = @hash[word].to_i + 1
+  }
+  @hash
 end
 
-class Inverter
-  def initialize
-    @tokenizer = Tokenizer.new
-    @hash = Hash.new
+def get_docno(str)
+  docno = String.new
+  str.downcase!
+  if str.match "<docno>"
+    docno = @tokenizer.tokenize(str)[0]
+    # docno = "#{docno[0]} #{docno[1]}"
+    # print "\r\e[0K#{docno}"
+    @hash[docno] = {}
   end
-
-  def invert(str)
-    @tokenizer.tokenize(str).each { |word|
-      @hash[word] = @hash[word].to_i + 1
-    }
-    @hash
-  end
-
-  def get_docno(str)
-    docno = String.new
-    str.downcase!
-    if str.match "<docno>"
-      docno = @tokenizer.tokenize(str)[0]
-      # docno = "#{docno[0]} #{docno[1]}"
-      # print "\r\e[0K#{docno}"
-      @hash[docno] = {}
-    end
-    @hash
-  end
+  @hash
 end
