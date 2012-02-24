@@ -1,6 +1,4 @@
-load 'lib/inverter.rb'
-load 'lib/tokenizer.rb'
-load 'lib/misc.rb'
+load 'lib/search_engine.rb'
 
 write_to_file
 read_from_file
