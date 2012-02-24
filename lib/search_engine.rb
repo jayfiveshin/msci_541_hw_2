@@ -2,7 +2,8 @@ require 'zlib'
 require 'stemmify'
 
 class SearchEngine
-  def read_gzip(file_name)
+  # use to read gzipped files only
+  def read_data(file_name)
     Zlib::GzipReader.open(file_name).read
   end
 
