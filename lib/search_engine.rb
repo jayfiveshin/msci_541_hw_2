@@ -34,63 +34,12 @@ class SearchEngine
     return df_table
   end
 
-  def get_length(file_name)
-    t1 = Time.now
-    doc_count = 0
-    doc = ""
-    middle_of_doc = false
-    Zlib::GzipReader.open(file_name) { |string|
-      string.each { |line|
-        line.downcase!
-        if line.match("</doc>")
-          doc << line
-          words = doc.split
-          print "\r\e[0K#{words.length}"
-          middle_of_doc = false
-          doc = ""
-          next
-        elsif middle_of_doc
-          doc << line
-          next
-        elsif line.match("<doc>")
-          doc_count += 1
-          # print "\r\e[0K#{doc_count} docs processed..."
-          doc << line
-          middle_of_doc = true
-          next
-        end
-      }
+  def build_tfidf(tf_table, df_table)
+    tfidf_table = Hash.new
+    tf_table.each { |term, frequency|
+      tfidf_table[term] = (tf_table[term].to_f / df_table[term].to_f).round(3)
     }
-    t2 = Time.now
-    print "\r\e[0KGetting doc_length #{t2 - t1} seconds"
-  end
-
-  def get_docno(file_name)
-    t1 = Time.now
-    docno = ""
-    docno_array = []
-    Zlib::GzipReader.open(file_name) { |string|
-      string.each { |line|
-        line.downcase!
-        if line.match "<docno>"
-          docno = tokenize(line)
-          docno = "#{docno[0]} #{docno[1]}"
-          print "\r\e[0K#{docno}"
-          docno_array << docno
-        end
-      }
-    }
-    t2 = Time.now
-    puts "\r\e[0KGetting doc_no #{t2 - t1} seconds"
-    docno_array
-  end
-
-  def build_tfidf(tf, df)
-    tfidf = {}
-    tf.each { |term, frequency|
-      tfidf[term] = (tf[term].to_f / df[term].to_f).round(3)
-    }
-    tfidf
+    return tfidf_table
   end
 
   def sort_by_frequency(tf_hash)
@@ -111,6 +60,26 @@ class SearchEngine
       end
       rank += 1
     }
+  end
+
+  def get_docno(filename)
+    t1 = Time.now
+    docno = ""
+    docno_array = []
+    Zlib::GzipReader.open(filename) { |string|
+      string.each { |line|
+        line.downcase!
+        if line.match "<docno>"
+          docno = tokenize(line)
+          docno = "#{docno[0]} #{docno[1]}"
+          print "\r\e[0K#{docno}"
+          docno_array << docno
+        end
+      }
+    }
+    t2 = Time.now
+    puts "\r\e[0KGetting doc_no #{t2 - t1} seconds"
+    docno_array
   end
 
   def write_to_file
