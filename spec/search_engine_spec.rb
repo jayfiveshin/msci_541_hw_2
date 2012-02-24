@@ -3,10 +3,24 @@ load 'lib/search_engine.rb'
 describe SearchEngine do
   before(:each) do
     @se = SearchEngine.new
-    @file_name = "data/latimes_1.dat.gz"
+    @gzipped_file  = "data/latimes_1.dat.gz"
+    @unzipped_file = "data/latimes_1.dat"
+    @dictionary = Array.new
   end
 
-  it "should be able to read gzipped data" do
-    @se.read_data(@file_name).should be_true
+  describe "read_data" do
+    it "should have read_data method" do
+      @se.read_data(@gzipped_file).should be_true
+    end
+
+    it "should be able to read gzipped data" do
+      @se.read_data(@gzipped_file).should == open(@unzipped_file).read
+    end
+  end
+
+  describe "build_df" do
+    it "should have build_df method" do
+      @se.build_df(@dictionary, @gzipped_file).should be_true
+    end
   end
 end
