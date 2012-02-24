@@ -143,20 +143,19 @@ class SearchEngine
     mid_of_doc = false
     hash       = Hash.new
     docno      = String.new
-    tokenizer  = Tokenizer.new
     open("testing.txt").each do |line|
       line.downcase!
       if line.match("<doc>")
         mid_of_doc = true
       elsif mid_of_doc and line.match("<docno>")
-        docno = tokenizer.tokenize(line).join
+        docno = line.tokenize.join
         hash[docno] = {}
       elsif mid_of_doc and line.match("<index>")
         next
       elsif mid_of_doc and line.match("</doc>")
         mid_of_doc = false
       elsif mid_of_doc
-        terms = tokenizer.tokenize(line)
+        terms = line.tokenize
         hash[docno][terms[0]] = terms[1]
       end
     end
@@ -164,7 +163,7 @@ class SearchEngine
   end
 
   def invert(str)
-    @tokenizer.tokenize(str).each { |word|
+    str.tokenize.each { |word|
       @hash[word] = @hash[word].to_i + 1
     }
     @hash
@@ -174,7 +173,7 @@ class SearchEngine
     docno = String.new
     str.downcase!
     if str.match "<docno>"
-      docno = @tokenizer.tokenize(str)[0]
+      docno = str.tokenize[0]
       # docno = "#{docno[0]} #{docno[1]}"
       # print "\r\e[0K#{docno}"
       @hash[docno] = {}
@@ -185,8 +184,8 @@ end
 
 class String
   def tokenize
-    term  = ""
-    terms = []
+    term  = String.new
+    terms = Array.new
     mid_of_tag = false
     self.downcase.split("").each { |char| 
       if char === '>'
@@ -232,9 +231,10 @@ class Hash
   end
 
   def display_table
+    se = SearchEngine.new
     rank = 1
     puts "RANK\tTERM\t\tFREQUENCY"
-    sort_by_frequency(self).each { |term, frequency|
+    se.sort_by_frequency(self).each { |term, frequency|
       if rank > 20
         break
       end
