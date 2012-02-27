@@ -82,7 +82,7 @@ class SearchEngine
     docno_array
   end
 
-  def write_to_file
+  def write_hash
     hash = {"la10189-0001" => {"joonha" => 1, "shin" => 1}, "la10189-0002" => {"jake" => 2, "nolan" => 1}}
     open("testing.txt", "w") { |f|
       hash.each { |k, v|
@@ -98,7 +98,7 @@ class SearchEngine
     }
   end
 
-  def read_from_file
+  def read_hash
     mid_of_doc = false
     hash       = Hash.new
     docno      = String.new
@@ -128,17 +128,6 @@ class SearchEngine
     @hash
   end
 
-  def get_docno(str)
-    docno = String.new
-    str.downcase!
-    if str.match "<docno>"
-      docno = str.tokenize[0]
-      # docno = "#{docno[0]} #{docno[1]}"
-      # print "\r\e[0K#{docno}"
-      @hash[docno] = {}
-    end
-    @hash
-  end
 end
 
 class String

@@ -54,4 +54,25 @@ describe SearchEngine do
     end
   end
 
+  describe "invert" do
+
+
+  end
+
+  describe "tokenize" do
+
+  end
+
+  describe "build_tf" do
+
+  end
+
+  describe "build_dictionary" do
+
+  end
+
+  describe "display_table" do
+
+  end
+
 end

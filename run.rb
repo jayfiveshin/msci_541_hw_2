@@ -4,6 +4,8 @@ se = SearchEngine.new
 article = "data/chosen_article.dat.gz"
 data = "data/latimes_810.dat.gz"
 t1 = Time.now
+tf_table = se.read_data(data).tokenize.build_tf
+tf_table.display_table
 # se.read_data(data)
 # tf_table = se.read_data(article).tokenize.build_tf
 # tf_table.display_table
