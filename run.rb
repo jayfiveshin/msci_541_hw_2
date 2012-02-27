@@ -1,11 +1,11 @@
 load 'lib/search_engine.rb'
-
 se = SearchEngine.new
 article = "data/chosen_article.dat.gz"
 data = "data/latimes_810.dat.gz"
+data_2 = "data/latimes_2.dat.gz"
+stopwords = open("stopwords_1").read
 t1 = Time.now
-tf_table = se.read_data(data).tokenize.build_tf
-tf_table.display_table
+puts se.invert(se.read_data(data_2))
 # se.read_data(data)
 # tf_table = se.read_data(article).tokenize.build_tf
 # tf_table.display_table

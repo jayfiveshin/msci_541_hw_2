@@ -122,16 +122,19 @@ class SearchEngine
   end
 
   def invert(str)
-    str.tokenize.each { |word|
-      @hash[word] = @hash[word].to_i + 1
-    }
-    @hash
+    invert_table = Hash.new
+    terms = str.tokenize
+    terms.each do |term|
+      invert_table[term] = invert_table[term].to_i + 1
+    end
+    return invert_table
   end
 
 end
 
 class String
   def tokenize
+    stopwords = open("stopwords_1").read
     term  = String.new
     terms = Array.new
     mid_of_tag = false
@@ -147,14 +150,18 @@ class String
       elsif term.empty?
         next
       else
-        terms << term.stem
+        unless stopwords.match(term.stem)
+          terms << term.stem
+        end
         term.clear
       end
     }
     if term.empty?
       terms
     else
-      terms << term.stem
+      unless stopwords.match(term.stem)
+        terms << term.stem
+      end
     end
   end
 end
