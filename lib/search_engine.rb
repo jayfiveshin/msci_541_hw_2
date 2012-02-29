@@ -123,29 +123,30 @@ def read_hash
   puts hash
 end
 
-def invert(str)
-  hash = Hash.new
-  hash_two = Hash.new
-  doc = 1
-  lines = str.split("\n")
-  lines.each_with_index do |l,i|
-    l.tokenize.each do |w|
-      hash[w] = hash[w].to_i + 1
+def invert(data)
+  # local variable declarations
+  temp  = {}
+  index = {}
+  doc   = ""
+  docid = 0 # arbitrary number
+  data.each_with_index do |line,l_count|
+    line.tokenize.each do |token|
+      temp[token] = temp[token].to_i + 1 # if temp[token] is nil, temp[token].to_i is 0
     end
-    if l.match("<DOCID>")
-      doc = l.tokenize[0].to_i
+    if line.match("<DOCID>")
+      docid = line.tokenize[0].to_i
     end
-    if l.match("</DOC>")
-      hash.each do |k,v|
-        if hash_two[k].nil?
-          hash_two[k] = {doc => v}
+    if line.match("</DOC>")
+      temp.each do |word,count|
+        if index[word].nil?
+          index[word] = {docid => count} # initialize
         else
-          hash_two[k][doc] = v
+          index[word][docid] = count # increment
         end
       end
-      hash.clear
+      temp.clear
     end
-    print "\r\e[0K#{i} of #{lines.length}"
+    print "\r\e[0K#{l_count}"
   end
-  hash_two.display
+  index
 end
