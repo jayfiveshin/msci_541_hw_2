@@ -124,6 +124,25 @@ def read_hash
 end
 
 def invert(str)
-  str.tokenize
-
+  hash = Hash.new
+  hash_two = Hash.new
+  doc = 1
+  lines = str.split("\n")
+  lines.each_with_index do |l,i|
+    l.tokenize.each do |w|
+      hash[w] = hash[w].to_i + 1
+    end
+    if l.match("</DOC>")
+      hash.each do |k,v|
+        if hash_two[k].nil?
+          hash_two[k] = {doc => v}
+        else
+          hash_two[k][doc] = v
+        end
+      end
+      hash.clear
+      doc += 1
+    end
+  end
+  puts hash_two
 end
