@@ -132,6 +132,9 @@ def invert(str)
     l.tokenize.each do |w|
       hash[w] = hash[w].to_i + 1
     end
+    if l.match("<DOCID>")
+      doc = l.tokenize[0].to_i
+    end
     if l.match("</DOC>")
       hash.each do |k,v|
         if hash_two[k].nil?
@@ -141,8 +144,8 @@ def invert(str)
         end
       end
       hash.clear
-      doc += 1
     end
+    print "\r\e[0K#{i} of #{lines.length}"
   end
-  puts hash_two
+  hash_two.display
 end

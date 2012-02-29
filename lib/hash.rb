@@ -4,10 +4,9 @@ class Hash
   end
 
   def display_table
-    se = SearchEngine.new
     rank = 1
     puts "RANK\tTERM\t\tFREQUENCY"
-    se.sort_by_frequency(self).each { |term, frequency|
+    sort_by_frequency(self).each { |term, frequency|
       if rank > 20
         break
       end
@@ -18,5 +17,15 @@ class Hash
       end
       rank += 1
     }
+  end
+
+  def display
+    self.sort.each do |k,v|
+      unless k.length > 6
+        puts "#{k}:\t\t#{v}"
+      else
+        puts "#{k}:\t#{v}"
+      end
+    end
   end
 end
