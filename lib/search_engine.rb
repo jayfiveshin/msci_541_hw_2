@@ -146,7 +146,7 @@ def invert(data)
       end
       temp.clear
     end
-    print "\r\e[0K#{l_count}"
+    # print "\r\e[0K#{l_count}"
   end
   index
 end
