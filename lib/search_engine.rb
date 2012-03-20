@@ -129,9 +129,19 @@ def invert(data)
   index = {}
   doc   = ""
   docid = 0 # arbitrary number
+  inside_doc = false
+  docno = 0
   data.each_with_index do |line,l_count|
-    line.tokenize.each do |token|
-      temp[token] = temp[token].to_i + 1 # if temp[token] is nil, temp[token].to_i is 0
+    if line.match("<DOC>")
+      inside_doc = true
+      if line.match("<DOCNO>")
+        docno = line.tokenize
+        docno = docno[0] + docno[1]
+        puts docno
+      end
+      line.tokenize.each do |token|
+        temp[token] = temp[token].to_i + 1 # if temp[token] is nil, temp[token].to_i is 0
+      end
     end
     if line.match("<DOCID>")
       docid = line.tokenize[0].to_i
@@ -146,7 +156,7 @@ def invert(data)
       end
       temp.clear
     end
-    # print "\r\e[0K#{l_count}"
+    print "\r\e[0K#{l_count}"
   end
-  index
+  puts index
 end

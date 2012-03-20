@@ -5,7 +5,7 @@ data_1    = "data/latimes_1.dat.gz"
 data_3    = "data/latimes_3.dat.gz"
 data_810  = "data/latimes_810.dat.gz"
 t1 = Time.now
-col = get_data(data_810)
+col = get_data(data_3)
 invert(col)
 t2 = Time.now
 puts "\nTime: #{t2 - t1} seconds"
