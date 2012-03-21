@@ -84,43 +84,35 @@ def get_docno(filename)
   docno_array
 end
 
-def write_hash
-  hash = {"la10189-0001" => {"joonha" => 1, "shin" => 1}, "la10189-0002" => {"jake" => 2, "nolan" => 1}}
-  open("testing.txt", "w") { |f|
-    hash.each { |k, v|
-      f.write "<DOC>\n"
-      f.write "<DOCNO>#{k}</DOCNO>\n"
-      f.write "<INDEX>\n"
-      v.each { |k, v|
-        f.write "#{k}=#{v}\n"
-      }
-      f.write "</INDEX>\n"
-      f.write "</DOC>\n"
-    }
+def write_hash(h)
+  open("index.txt", "w") { |f|
+    f.write h
   }
 end
 
-def read_hash
-  mid_of_doc = false
-  hash       = Hash.new
-  docno      = String.new
-  open("testing.txt").each do |line|
-    line.downcase!
-    if line.match("<doc>")
-      mid_of_doc = true
-    elsif mid_of_doc and line.match("<docno>")
-      docno = line.tokenize.join
-      hash[docno] = {}
-    elsif mid_of_doc and line.match("<index>")
-      next
-    elsif mid_of_doc and line.match("</doc>")
-      mid_of_doc = false
-    elsif mid_of_doc
-      terms = line.tokenize
-      hash[docno][terms[0]] = terms[1]
-    end
-  end
-  puts hash
+def read_hash(file)
+  hash = file
+  hash
+  # mid_of_doc = false
+  # hash       = Hash.new
+  # docno      = String.new
+  # open(file).each do |line|
+  #   line.downcase!
+  #   if line.match("<doc>")
+  #     mid_of_doc = true
+  #   elsif mid_of_doc and line.match("<docno>")
+  #     docno = line.tokenize.join
+  #     hash[docno] = {}
+  #   elsif mid_of_doc and line.match("<index>")
+  #     next
+  #   elsif mid_of_doc and line.match("</doc>")
+  #     mid_of_doc = false
+  #   elsif mid_of_doc
+  #     terms = line.tokenize
+  #     hash[docno][terms[0]] = terms[1]
+  #   end
+  # end
+  # puts hash
 end
 
 def invert(data)
@@ -130,23 +122,18 @@ def invert(data)
   doc   = ""
   docid = 0 # arbitrary number
   inside_doc = false
-  docno = 0
+  docno = ""
+  docno_h = {}
   data.each_with_index do |line,l_count|
     if line.match("<DOC>")
       inside_doc = true
-      if line.match("<DOCNO>")
-        docno = line.tokenize
-        docno = docno[0] + docno[1]
-        puts docno
-      end
-      line.tokenize.each do |token|
-        temp[token] = temp[token].to_i + 1 # if temp[token] is nil, temp[token].to_i is 0
-      end
-    end
-    if line.match("<DOCID>")
+    elsif
+      line.match("<DOCNO>")
+      docno = line.tokenize
+      docno = docno[0] + docno[1]
+    elsif line.match("<DOCID>")
       docid = line.tokenize[0].to_i
-    end
-    if line.match("</DOC>")
+    elsif line.match("</DOC>")
       temp.each do |word,count|
         if index[word].nil?
           index[word] = {docid => count} # initialize
@@ -155,8 +142,33 @@ def invert(data)
         end
       end
       temp.clear
+    else
+      line.tokenize.each do |token|
+        temp[token] = temp[token].to_i + 1 # if temp[token] is nil, temp[token].to_i is 0
+      end
     end
+    docno_h[docid] = docno
     print "\r\e[0K#{l_count}"
   end
-  puts index
+  write_to_file(index,"index.txt")
+  write_to_file(docno_h, "docno_h.txt")
+end
+
+def index_read(i)
+  i.each do |k,v|
+    puts "#{k}: #{v}"
+  end
+end
+
+def write_to_file(i,name)
+  serialized_object = YAML::dump(i)
+  File.open(name, "w") { |f|
+    f.write serialized_object
+  }
+end
+
+def read_from_file(f)
+  File.open(f, "r") { |f|
+    YAML::load(f.read)
+  }
 end
