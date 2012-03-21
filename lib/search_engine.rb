@@ -90,68 +90,49 @@ def write_hash(h)
   }
 end
 
-def read_hash(file)
-  hash = file
-  hash
-  # mid_of_doc = false
-  # hash       = Hash.new
-  # docno      = String.new
-  # open(file).each do |line|
-  #   line.downcase!
-  #   if line.match("<doc>")
-  #     mid_of_doc = true
-  #   elsif mid_of_doc and line.match("<docno>")
-  #     docno = line.tokenize.join
-  #     hash[docno] = {}
-  #   elsif mid_of_doc and line.match("<index>")
-  #     next
-  #   elsif mid_of_doc and line.match("</doc>")
-  #     mid_of_doc = false
-  #   elsif mid_of_doc
-  #     terms = line.tokenize
-  #     hash[docno][terms[0]] = terms[1]
-  #   end
-  # end
-  # puts hash
-end
-
 def invert(data)
   # local variable declarations
   temp  = {}
   index = {}
   doc   = ""
   docid = 0 # arbitrary number
-  inside_doc = false
+  mid_of_text = false
   docno = ""
   docno_h = {}
+  doc_count = 0
+  doc_count_h = {}
   data.each_with_index do |line,l_count|
-    if line.match("<DOC>")
-      inside_doc = true
-    elsif
-      line.match("<DOCNO>")
-      docno = line.tokenize
-      docno = docno[0] + docno[1]
+    if line.match("<DOCNO>")
+      docno = line.tokenize[1]
     elsif line.match("<DOCID>")
-      docid = line.tokenize[0].to_i
+      docid = line.tokenize[1].to_i
     elsif line.match("</DOC>")
       temp.each do |word,count|
+        doc_count += count
         if index[word].nil?
           index[word] = {docid => count} # initialize
         else
           index[word][docid] = count # increment
         end
       end
+      doc_count_h[docid] = doc_count
+      doc_count = 0
       temp.clear
-    else
+    elsif line.match("<TEXT>")
+      mid_of_text = true
+    elsif line.match("</TEXT>")
+      mid_of_text = false
+    elsif mid_of_text
       line.tokenize.each do |token|
         temp[token] = temp[token].to_i + 1 # if temp[token] is nil, temp[token].to_i is 0
       end
     end
     docno_h[docid] = docno
-    print "\r\e[0K#{l_count}"
+    print "\r\e[0K#{(l_count.to_f/99933.to_f).round(2)}"
   end
   write_to_file(index,"index.txt")
   write_to_file(docno_h, "docno_h.txt")
+  write_to_file(doc_count_h, "doc_count_h.txt")
 end
 
 def index_read(i)
